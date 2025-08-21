@@ -29,12 +29,30 @@ public class DNSQuestion {
         this.qclass = qclass;
     }
 
+    public byte[] toBytes(){
+        byte[] biti = encodeDNS(this.qname);
+        ByteBuffer buf = ByteBuffer.allocate(biti.length + 4); //4 za qtype in qclass ... ??
+        buf.put(buf);
+        buf.putShort(this.qtype);
+        buf.putShort(this.qclass);
+        return buf.array();
+    }
+
+    public static DNSQuestion fromBytes(ByteBuffer buf){
+        String domena = decodeDNS(buf);
+        short qt = buf.getShort();
+        short qc = buf.getShort();
+        return new DNSQuestion(domena, qt, qc);
+    }
+
     private static String decodeDNS(ByteBuffer buf){
         StringBuilder dns = new StringBuilder();
 
         while (true){
             byte dolzina = buf.get();
-            if(dolzina == 0) break;
+            if(dolzina == 0) {
+                break;
+            }
 
             byte[] label = new byte[dolzina];
             buf.get(label);
@@ -45,6 +63,7 @@ public class DNSQuestion {
         return dns.toString();
     }
 
+    //"example.com" -> [7]example[3]com[0]
     private static byte[] encodeDNS(String dns){
         String[] completeDNS = dns.split("\\.");
         ByteBuffer buf = ByteBuffer.allocate(dns.length() + completeDNS.length + 1); // +length bytes + 0
