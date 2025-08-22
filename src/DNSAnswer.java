@@ -5,7 +5,7 @@ public class DNSAnswer {
     private short atype;    //TYPE – 2 bytes
     private short aclass;   //CLASS – 2 bytes
     private int ttl;        //TTL – 4 bytes (Time to Live)
-    private byte[] rdata;   //RDATA – variable length (resource data)
+    private byte[] rdata;   //RDATA – variable length (resource data) ... IPv4 ?
 
     public DNSAnswer(String name, short atype, short aclass, int ttl, byte[] rdata) {
         this.name = name;

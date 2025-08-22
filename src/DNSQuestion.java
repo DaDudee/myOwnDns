@@ -32,7 +32,7 @@ public class DNSQuestion {
     public byte[] toBytes(){
         byte[] biti = Transcoding.encodeDNS(this.qname);
         ByteBuffer buf = ByteBuffer.allocate(biti.length + 4); //4 za qtype in qclass ... ??
-        buf.put(buf);
+        buf.put(biti);
         buf.putShort(this.qtype);
         buf.putShort(this.qclass);
         return buf.array();
@@ -45,4 +45,10 @@ public class DNSQuestion {
         return new DNSQuestion(domena, qt, qc);
     }
 
+    public String getQname() {
+        return qname;
+    }
+    public void setQname(String qname) {
+        this.qname = qname;
+    }
 }

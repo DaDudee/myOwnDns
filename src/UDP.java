@@ -11,22 +11,23 @@ public class UDP {
     }
 
     public void posiljajInSprejemaj() throws IOException {
-        byte[] buf = new byte[512];
-        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
 
         // cakamo na paket
+        byte[] buf = new byte[512];
+        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
         socket.receive(datagramPacket);
         System.out.println("Received data from: " + datagramPacket.getAddress() + ":" + datagramPacket.getPort());
 
-        // prvih 12 byteov, za header
+        // prvih 12 byteov, za HEADER
         byte[] respHeaderBytes = new byte[12];
         System.arraycopy(datagramPacket.getData(), 0, respHeaderBytes, 0, 12);
         DNSHeader receivedHeader = DNSHeader.fromBytes(respHeaderBytes);
 
-        // dobimo question section (vse po 12. bajtu)
+        // dobimo QUESTION section (vse po 12. bajtu)
         int questionLength = datagramPacket.getLength() - 12;
         byte[] questionBytes = new byte[questionLength];
         System.arraycopy(datagramPacket.getData(), 12, questionBytes, 0, questionLength);
+        DNSQuestion question = DNSQuestion.fromBytes(ByteBuffer.wrap(questionBytes));
 
         System.out.println("Header (ID) : " + receivedHeader.getId());
 
@@ -48,16 +49,29 @@ public class UDP {
         );
         byte[] responseHeaderBytes = responseHeader.toBytes();
 
-        // združimo header in question section (ni vec sporočila)
-        ByteBuffer responseBuffer = ByteBuffer.allocate(responseHeaderBytes.length + questionBytes.length);
-        responseBuffer.put(responseHeaderBytes);
-        responseBuffer.put(questionBytes);
-        byte[] responseData = responseBuffer.array();
+        //zgradimo answer
+        byte[] ipBytes = {(byte)127, 0, 0, 1};  // RDATA (IPv4)
 
-        // pošljemo
-        DatagramPacket responsePacket = new DatagramPacket(responseData, responseData.length, datagramPacket.getSocketAddress());
+        DNSAnswer answer = new DNSAnswer(
+                question.getQname(), // same name as question
+                (short) 1,           // TYPE A
+                (short) 1,           // CLASS IN
+                60,                  // TTL (seconds)
+                ipBytes
+        );
+
+        byte[] responseBytes = answer.toBytes();
+
+        //vse skupaj
+        ByteBuffer buffer = ByteBuffer.allocate(respHeaderBytes.length + questionBytes.length + responseBytes.length);
+        buffer.put(respHeaderBytes);
+        buffer.put(questionBytes);
+        buffer.put(responseHeaderBytes);
+        byte[] responseData = buffer.array();
+
+        DatagramPacket responsePacket = new DatagramPacket(responseData, responseData.length,  datagramPacket.getAddress(), datagramPacket.getPort());
         socket.send(responsePacket);
-        System.out.println("Sent data to: " + responsePacket.getAddress() + ":" + responsePacket.getPort());
+        System.out.println("Sent to: " + question.getQname());
     }
 
     public void close(){
