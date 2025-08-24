@@ -13,19 +13,19 @@ public class UDPClient {
             byte[] questionSection = question.toBytes();
 
             DNSHeader header = new DNSHeader(
-                    (short) 0x04D2,  // ID (1234)
-                    false,           // qr = query
-                    (short) 0,       // opcode
-                    false,           // aa
-                    false,           // tc
-                    true,            // rd
-                    false,           // ra
-                    (short) 0,       // z
-                    (short) 0,       // rcode
-                    (short) 1,       // QDCOUNT
-                    (short) 0,       // ANCOUNT
-                    (short) 0,       // NSCOUNT
-                    (short) 0        // ARCOUNT
+                    (short) 0x04D2, // ID = 1234
+                    false,          // qr = query
+                    (byte) 0,       // opcode (standard query)
+                    false,          // aa
+                    false,          // tc
+                    true,           // rd (recursion desired)
+                    false,          // ra
+                    (byte) 0,       // z
+                    (byte) 0,       // rcode
+                    (short) 1,      // QDCOUNT
+                    (short) 0,      // ANCOUNT
+                    (short) 0,      // NSCOUNT
+                    (short) 0       // ARCOUNT
             );
             byte[] headerBytes = header.toBytes();
 

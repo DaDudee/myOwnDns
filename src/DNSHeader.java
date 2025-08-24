@@ -117,4 +117,8 @@ public class DNSHeader {
 
     public short getArCount() { return arCount; }
     public void setArCount(short arCount) { this.arCount = arCount; }
+
+    public boolean getRD() {
+        return this.rd;
+    }
 }

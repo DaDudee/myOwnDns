@@ -33,19 +33,19 @@ public class UDP {
 
         // odgovorimo z istim ID
         DNSHeader responseHeader = new DNSHeader(
-                receivedHeader.getId(), // isti ID
-                true,           // qr = response
-                (short) 0,
-                false,
-                false,
-                true,
-                true,
-                (short) 0,
-                (short) 0,
-                (short) 1, // QDCOUNT ostane 1
-                (short) 0,
-                (short) 0,
-                (short) 0
+                receivedHeader.getId(),   // same ID from request
+                true,                     // qr = response
+                receivedHeader.getOpcode(), // mimic OPCODE from request
+                false,                    // aa
+                false,                    // tc
+                receivedHeader.getRD(),   // mimic RD from request
+                false,                    // ra
+                (byte) 0,                 // z
+                (byte) 0,                 // rcode = 0 (no error)
+                (short) 1,                // QDCOUNT = 1
+                (short) 1,                // ANCOUNT = 1
+                (short) 0,                // NSCOUNT
+                (short) 0                 // ARCOUNT
         );
         byte[] responseHeaderBytes = responseHeader.toBytes();
 
